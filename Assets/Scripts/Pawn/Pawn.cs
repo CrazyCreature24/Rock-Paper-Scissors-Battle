@@ -16,7 +16,7 @@ public class Pawn : MonoBehaviour
     // Needs to track which pawns are tracking it, so that when the pawn changes which type it is,
     // it can now change targets.
 
-    // TODO: Set up collision so that it can swap targets and sides
+    // TODO: Move AI to PawnAI. (Break up into components)
 
 
     public Material rockMat;
@@ -35,10 +35,6 @@ public class Pawn : MonoBehaviour
     {
         if (spriteRenderer == null)
             spriteRenderer = GetComponent<SpriteRenderer>();
-
-        Assert.IsTrue(spriteRenderer != null);
-
-
     }
 
     // Update is called once per frame
@@ -46,11 +42,6 @@ public class Pawn : MonoBehaviour
     {
         if (target == null)
             FindTarget();
-    }
-
-    public PawnTypes GetPawnType()
-    {
-        return type;
     }
 
     public void SetPawnType(PawnTypes nType)
@@ -63,10 +54,65 @@ public class Pawn : MonoBehaviour
             SetMaterial(paperMat);
         else if (nType == PawnTypes.Scissors) 
             SetMaterial(scissorsMat);
-
-        
     }
 
+    public void FindTarget()
+    {
+        Targeting.SetNewTarget(gameObject);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Pawn otherPawn = other.GetComponentInParent<Pawn>();
+        PawnTypes othersType = otherPawn.GetPawnType();
+
+        if (type == PawnTypes.Rock)
+        {
+            if (othersType == PawnTypes.Paper) // Paper beats rock
+                HandleValidCollision();
+        }
+        else if (type == PawnTypes.Paper)
+        {
+            if (othersType == PawnTypes.Scissors) // Scissors beats paper
+                HandleValidCollision();
+        }
+        else if (type == PawnTypes.Scissors)
+        {
+            if (othersType == PawnTypes.Rock) // Rock beats Scissors
+                HandleValidCollision();
+        }
+    }
+
+
+    private void HandleValidCollision()
+    {
+        if (target)
+            target.GetComponent<Pawn>().RemoveFollower(gameObject);
+
+        LevelManager.instance.SwapList(gameObject);
+
+        HandleFollowers();
+    }
+
+    private void HandleFollowers()
+    {
+        foreach (var item in followers)
+        {
+            item.GetComponent<Pawn>().FindTarget();
+        }
+        followers.Clear();
+    }
+
+    public void RemoveFollower(GameObject follower)
+    {
+        // Removes the game object from the followers list
+        followers.Remove(follower);
+    }
+
+    public PawnTypes GetPawnType()
+    {
+        return type;
+    }
     private void SetMaterial(Material mat)
     {
         spriteRenderer.material = mat;
@@ -75,10 +121,5 @@ public class Pawn : MonoBehaviour
     public void SetupSpriteRenderer()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-    }
-
-    public void FindTarget()
-    {
-        Targeting.SetNewTarget(gameObject);
     }
 }

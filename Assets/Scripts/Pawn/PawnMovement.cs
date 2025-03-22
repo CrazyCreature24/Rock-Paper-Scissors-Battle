@@ -23,7 +23,7 @@ public class PawnMovement : MonoBehaviour
 
         if (pawnReference.target == null)
         {
-            newPos += gameObject.transform.right * pawnReference.moveSpeed * Time.deltaTime;
+            newPos += gameObject.transform.right * pawnReference.moveSpeed * Time.deltaTime * 0.5f;
         }
         else
         {

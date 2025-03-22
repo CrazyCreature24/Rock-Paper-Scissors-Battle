@@ -11,9 +11,9 @@ public class Targeting : MonoBehaviour
 
 
 
-    public static void SetNewTarget(GameObject obj)
+    public static void SetNewTarget(GameObject current)
     {
-        Pawn pawn = obj.GetComponent<Pawn>();
+        Pawn pawn = current.GetComponent<Pawn>();
         if (pawn == null)
             Debug.Log("SetNewTarget: pawn variable is null");
 
@@ -22,22 +22,28 @@ public class Targeting : MonoBehaviour
 
         if (currentType == PawnTypes.Rock)
         {
-            closest = FindClosestTarget(obj, LevelManager.instance.scissors);
+            closest = FindClosestTarget(current, LevelManager.instance.scissors);
         }
         else if (currentType == PawnTypes.Scissors)
         {
-            closest = FindClosestTarget(obj, LevelManager.instance.papers);
+            closest = FindClosestTarget(current, LevelManager.instance.papers);
         }
         else if (currentType == PawnTypes.Paper)
         {
-            closest = FindClosestTarget(obj, LevelManager.instance.rocks);
+            closest = FindClosestTarget(current, LevelManager.instance.rocks);
         }
 
         pawn.target = closest;
+
+        if (closest != null) 
+            closest.GetComponent<Pawn>().followers.Add(current);
     }
 
     private static GameObject FindClosestTarget(GameObject obj, List<GameObject> targetList)
     {
+        if (targetList.Count == 0)
+            return null;
+
         GameObject closest = targetList[0];
         Vector3 currentPos = obj.transform.position;
         float closestDis = float.MaxValue;

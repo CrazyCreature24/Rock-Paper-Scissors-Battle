@@ -47,13 +47,31 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    public void RemoveToList(GameObject pawn)
-    {
-
-    }
-
     public void SwapList(GameObject pawn)
     {
+        Pawn p = pawn.GetComponent<Pawn>();
+        PawnTypes currentType = p.GetPawnType();
+
+        if (currentType == PawnTypes.Rock)
+        {
+            rocks.Remove(pawn);
+            p.SetPawnType(PawnTypes.Paper);
+            papers.Add(pawn);
+        }
+        else if (currentType == PawnTypes.Paper)
+        { 
+            papers.Remove(pawn);
+            p.SetPawnType(PawnTypes.Scissors);
+            scissors.Add(pawn);
+        }
+        else
+        {
+            scissors.Remove(pawn);
+            p.SetPawnType(PawnTypes.Rock);
+            rocks.Add(pawn);
+        }
+
+        p.target = null;
 
     }
 
